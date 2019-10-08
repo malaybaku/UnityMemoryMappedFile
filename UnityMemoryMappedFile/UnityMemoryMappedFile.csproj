@@ -49,6 +49,8 @@
     <Compile Include="MemoryMappedFileBase.cs" />
     <Compile Include="MemoryMappedFileServer.cs" />
     <Compile Include="MemoryMappedFileClient.cs" />
+    <Compile Include="MemoryMappedNamedPipe.cs" />
+    <Compile Include="MessageEventData.cs" />
     <Compile Include="PipeCommands.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

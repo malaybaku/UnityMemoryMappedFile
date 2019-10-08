@@ -1,18 +1,17 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace UnityMemoryMappedFile
 {
     public sealed class AsyncLock
     {
-        private readonly System.Threading.SemaphoreSlim m_semaphore
-        = new System.Threading.SemaphoreSlim(1, 1);
-        private readonly Task<IDisposable> m_releaser;
-
         public AsyncLock()
         {
             m_releaser = Task.FromResult((IDisposable)new Releaser(this));
         }
+        private readonly SemaphoreSlim m_semaphore = new SemaphoreSlim(1, 1);
+        private readonly Task<IDisposable> m_releaser;
 
         public Task<IDisposable> LockAsync()
         {
@@ -22,16 +21,25 @@ namespace UnityMemoryMappedFile
             wait.ContinueWith(
             (_, state) => (IDisposable)state,
             m_releaser.Result,
-            System.Threading.CancellationToken.None,
+            CancellationToken.None,
             TaskContinuationOptions.ExecuteSynchronously,
             TaskScheduler.Default
             );
         }
+
         private sealed class Releaser : IDisposable
         {
+            internal Releaser(AsyncLock toRelease) 
+            {
+                m_toRelease = toRelease; 
+            }
+
             private readonly AsyncLock m_toRelease;
-            internal Releaser(AsyncLock toRelease) { m_toRelease = toRelease; }
-            public void Dispose() { m_toRelease.m_semaphore.Release(); }
+
+            public void Dispose()
+            {
+                m_toRelease.m_semaphore.Release(); 
+            }
         }
     }
 }
