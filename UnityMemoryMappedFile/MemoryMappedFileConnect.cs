@@ -50,7 +50,6 @@ namespace UnityMemoryMappedFile
     //12-: ボディ
     // - UTF8エンコードした文字列をバイナリ化したもの
 
-
     /// <summary>
     /// MMFを用いて、投げっぱなしコマンドとレスポンス必須コマンドの2種類が送受信できる凄いやつだよ
     /// </summary>
@@ -126,8 +125,8 @@ namespace UnityMemoryMappedFile
             }
             receiverAccessor = receiver.CreateViewAccessor();
             senderAccessor = sender.CreateViewAccessor();
-            Task.Run(() => ReadThread());
-            Task.Run(() => WriteThread());
+            new Thread(() => ReadThread()).Start();
+            new Thread(() => WriteThread()).Start();
             IsConnected = true;
         }
 
@@ -161,7 +160,7 @@ namespace UnityMemoryMappedFile
         }
 
         private void SendQueryResponse(string command, int id)
-            => writeMessageQueue.Enqueue(Message.Query(command, id));
+            => writeMessageQueue.Enqueue(Message.Response(command, id));
 
         private void ReadThread()
         {
